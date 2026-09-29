@@ -1,0 +1,727 @@
+/* ============================================================
+   Speed Dial — New Tab page
+   ============================================================ */
+@import './base.css';
+
+/* ------------------------------------------------------------
+   Page shell & background
+   ------------------------------------------------------------ */
+.newtab-page {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* The wallpaper paints on its own fixed layer: a filter on the page element
+   blurs every child — cards, modals and the whole settings screen. The inset
+   grows with the blur so the blurred edges never feather at the viewport. */
+.newtab-page::before {
+  content: '';
+  position: fixed;
+  inset: calc(-3 * var(--page-bg-blur, 0px));
+  z-index: 0;
+  opacity: var(--page-opacity, 1);
+  background: var(--page-bg, transparent);
+  background-size: var(--page-bg-size, cover);
+  background-position: var(--page-bg-position, center);
+  background-repeat: var(--page-bg-repeat, no-repeat);
+  filter: var(--page-bg-filter, none);
+}
+
+.page-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--page-overlay, transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 76px 28px 120px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ------------------------------------------------------------
+   Hero (centred search)
+   ------------------------------------------------------------ */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  margin-bottom: 46px;
+}
+
+/* ------------------------------------------------------------
+   Fixed controls: settings top-right, clock bottom-right
+   ------------------------------------------------------------ */
+.page-actions {
+  position: fixed;
+  top: 22px;
+  right: 26px;
+  z-index: 40;
+  display: flex;
+  gap: 14px;
+}
+
+/* Bare gear: no tile, no border, no label. */
+.gear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--page-text-1);
+  cursor: pointer;
+  opacity: 0.75;
+  filter: drop-shadow(0 2px 6px rgba(2, 6, 23, 0.45));
+  transition: opacity var(--t-fast), transform var(--t-fast);
+}
+
+.gear-btn:hover {
+  opacity: 1;
+  transform: rotate(35deg);
+}
+
+.gear-btn:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.page-clock {
+  position: fixed;
+  right: 26px;
+  bottom: 22px;
+  z-index: 30;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  text-align: right;
+}
+
+.page-clock .clock-time {
+  font-size: 1.0625rem;
+}
+
+@media (max-width: 700px) {
+  .page-content {
+    padding: 64px 16px 108px;
+  }
+
+  .hero {
+    gap: 18px;
+    margin-bottom: 30px;
+  }
+
+  .page-actions {
+    top: 14px;
+    right: 14px;
+    gap: 10px;
+  }
+}
+
+/* ------------------------------------------------------------
+   Clock
+   ------------------------------------------------------------ */
+.clock-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.15;
+}
+
+.clock-time {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+  color: var(--page-text-1);
+}
+
+.clock-date {
+  font-size: 0.75rem;
+  color: var(--page-text-2);
+  letter-spacing: 0.01em;
+}
+
+/* ------------------------------------------------------------
+   Search bar
+   ------------------------------------------------------------ */
+.search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: min(92vw, 720px);
+  height: 60px;
+  padding: 0 var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(22px) saturate(1.2);
+  -webkit-backdrop-filter: blur(22px) saturate(1.2);
+  box-shadow: 0 12px 34px -18px rgba(2, 6, 23, 0.55);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast), background var(--t-fast);
+}
+
+.search-bar:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--ring), 0 12px 34px -18px rgba(2, 6, 23, 0.55);
+  background: var(--card-bg-solid);
+}
+
+.search-icon {
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+.search-bar input {
+  flex: 1;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-1);
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  min-width: 0;
+}
+
+.search-bar input::placeholder {
+  color: var(--text-2);
+}
+
+.search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.search-clear:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+.search-kbd {
+  padding: 2px 7px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text-3);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------
+   Grid
+   ------------------------------------------------------------ */
+.speed-dial-grid {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+}
+
+/* ------------------------------------------------------------
+   Card
+   ------------------------------------------------------------ */
+.speed-dial-card {
+  position: relative;
+  background: color-mix(in srgb, var(--card-bg) calc(var(--card-alpha, 1) * 100%), transparent);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  overflow: visible;
+  cursor: pointer;
+  transition: transform var(--t-normal), box-shadow var(--t-normal), border-color var(--t-fast);
+}
+
+.speed-dial-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px -10px rgba(2, 6, 23, 0.22), 0 4px 12px rgba(2, 6, 23, 0.10);
+  border-color: var(--border-strong);
+}
+
+.no-animations .speed-dial-card:hover {
+  transform: none;
+}
+
+.speed-dial-card.dragging {
+  opacity: 0.45;
+  transform: scale(0.96);
+}
+
+.speed-dial-card.drag-over {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--ring), var(--card-shadow);
+}
+
+/* Thumbnail */
+.card-thumb {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: calc(var(--card-radius) - 1px) calc(var(--card-radius) - 1px) 0 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+}
+
+.size-custom .card-thumb {
+  height: var(--thumb-h, 120px);
+  aspect-ratio: auto;
+}
+
+/* Footer hidden: the thumbnail becomes the whole card. */
+.speed-dial-card.no-meta .card-thumb {
+  border-radius: calc(var(--card-radius) - 1px);
+}
+
+.card-thumb.tinted {
+  background: linear-gradient(160deg,
+    hsl(var(--card-hue, 225) 52% 42%),
+    hsl(calc(var(--card-hue, 225) + 42) 55% 26%));
+}
+
+.thumb-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb-favicon {
+  position: relative;
+  width: 34%;
+  max-width: 52px;
+  aspect-ratio: 1;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 5px rgba(2, 6, 23, 0.16));
+}
+
+.thumb-letter {
+  position: relative;
+  font-size: 28px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(2, 6, 23, 0.25);
+  user-select: none;
+}
+
+.thumb-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 42%);
+  pointer-events: none;
+}
+
+/* Card footer */
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 9px 11px 10px;
+  min-width: 0;
+}
+
+/* Site icon fills its slot — no tinted container with padding around it. */
+.card-favicon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.card-favicon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* No icon available: solid brand-coloured tile with the initial. */
+.card-favicon.letter {
+  background: hsl(var(--card-hue, 225) 52% 46%);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(2, 6, 23, 0.28);
+}
+
+.card-text {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.card-title {
+  font-size: 0.8125rem;
+  font-weight: 580;
+  color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-url {
+  font-size: 0.6875rem;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Menu button */
+.card-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--t-fast), background var(--t-fast), color var(--t-fast);
+}
+
+.speed-dial-card:hover .card-menu-btn,
+.card-menu-btn:focus-visible,
+.card-menu-btn.menu-open {
+  opacity: 1;
+}
+
+.card-menu-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+.card-menu-btn.floating {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
+  opacity: 0;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+/* Context menu */
+.card-menu {
+  position: absolute;
+  top: calc(100% - 4px);
+  right: 6px;
+  z-index: 60;
+  min-width: 178px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card-bg-solid);
+  box-shadow: var(--shadow-lg);
+  animation: modal-in var(--t-fast);
+}
+
+.card-menu.up {
+  top: auto;
+  bottom: calc(100% - 4px);
+}
+
+.card-menu button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 9px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-1);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 520;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--t-fast);
+}
+
+.card-menu button:hover {
+  background: var(--surface-hover);
+}
+
+.card-menu button.danger {
+  color: var(--danger);
+}
+
+.card-menu button.danger:hover {
+  background: var(--danger-soft);
+}
+
+.card-menu-sep {
+  height: 1px;
+  margin: 5px 3px;
+  background: var(--border);
+}
+
+/* ------------------------------------------------------------
+   Add-card tile (mirrors the site card structure)
+   ------------------------------------------------------------ */
+.add-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--card-radius);
+  background: color-mix(in srgb, var(--card-bg) calc(var(--card-alpha, 1) * 100%), transparent);
+  color: var(--text-1);
+  font-family: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color var(--t-fast), background var(--t-fast), transform var(--t-normal);
+}
+
+.add-card:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: translateY(-2px);
+}
+
+.add-card-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(160deg, var(--accent-soft), var(--surface-2));
+  transition: opacity var(--t-fast);
+}
+
+.add-card:hover .add-card-thumb {
+  filter: brightness(1.04);
+}
+
+.size-custom .add-card-thumb {
+  height: var(--thumb-h, 120px);
+  aspect-ratio: auto;
+}
+
+.add-card-plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-3);
+  color: var(--text-2);
+  transition: color var(--t-fast), border-color var(--t-fast);
+}
+
+.add-card:hover .add-card-plus {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.add-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 11px 10px;
+}
+
+.add-card-label {
+  font-size: 0.8125rem;
+  font-weight: 580;
+  color: var(--text-1);
+}
+
+/* ------------------------------------------------------------
+   Empty state
+   ------------------------------------------------------------ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  padding: 88px var(--sp-6) var(--sp-12);
+  text-align: center;
+}
+
+.empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  color: var(--text-3);
+  margin-bottom: var(--sp-1);
+}
+
+.empty-state h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--page-text-1);
+}
+
+.empty-state p {
+  max-width: 340px;
+  font-size: 0.875rem;
+  color: var(--page-text-2);
+  line-height: 1.55;
+}
+
+.empty-state .btn {
+  margin-top: var(--sp-2);
+}
+
+/* ------------------------------------------------------------
+   Settings overlay (full screen inside new tab)
+   ------------------------------------------------------------ */
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  animation: overlay-in var(--t-fast);
+}
+
+/* ------------------------------------------------------------
+   Over a wallpaper the shell is always dark glass, whatever the UI
+   theme — keeps text readable on both light and dark photos.
+   ------------------------------------------------------------ */
+.has-wallpaper .speed-dial-card,
+.has-wallpaper .add-card,
+.has-wallpaper .search-bar,
+.has-wallpaper .page-clock,
+.has-wallpaper .empty-icon {
+  --text-1: #f2f4fa;
+  --text-2: rgba(238, 241, 248, 0.78);
+  --text-3: rgba(238, 241, 248, 0.58);
+  --surface-2: rgba(255, 255, 255, 0.06);
+  --surface-hover: rgba(255, 255, 255, 0.12);
+  --border: rgba(255, 255, 255, 0.14);
+  --border-strong: rgba(255, 255, 255, 0.26);
+  --card-bg: rgba(18, 22, 32, 0.62);
+  --card-bg-solid: #171a26;
+  --glass-bg: rgba(17, 20, 30, 0.55);
+  --accent: #a5b3ff;
+  --accent-soft: rgba(165, 179, 255, 0.18);
+  --ring: rgba(165, 179, 255, 0.4);
+  --danger: #ff8f92;
+  --danger-soft: rgba(255, 143, 146, 0.16);
+}
+
+/* ------------------------------------------------------------
+   Text directly over the background: soft shadow for legibility
+   ------------------------------------------------------------ */
+.bg-dark .clock-time,
+.bg-dark .clock-date,
+.bg-dark .empty-state h2,
+.bg-dark .empty-state p {
+  text-shadow: 0 1px 3px rgba(2, 6, 23, 0.35);
+}
+
+.bg-light .clock-time,
+.bg-light .clock-date,
+.bg-light .empty-state h2,
+.bg-light .empty-state p {
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.35);
+}
+
+/* ------------------------------------------------------------
+   Narrow windows / touch. Must come last: it overrides the hover-only
+   visibility of the card menu defined further up.
+   ------------------------------------------------------------ */
+@media (hover: none), (max-width: 820px) {
+  .card-menu-btn {
+    opacity: 1;
+  }
+
+  .card-menu-btn.floating {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 820px) {
+  .card-menu-btn {
+    width: 40px;
+    height: 40px;
+    margin: -6px -8px -6px 0;
+  }
+
+  .card-menu-btn.floating {
+    width: 36px;
+    height: 36px;
+    margin: 0;
+    top: 6px;
+    right: 6px;
+  }
+}
+
+@media (max-width: 700px) {
+  /* A fixed clock eats half the width here and sits on top of the cards. */
+  .page-clock {
+    position: static;
+    width: fit-content;
+    margin: 24px 0 0 auto;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 820px) {
+  /* Anchored to a narrow card the popup runs off-screen on edge columns —
+     as a bottom bar it always fits and stays thumb-reachable. */
+  .card-menu,
+  .card-menu.up {
+    position: fixed;
+    top: auto;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .search-kbd {
+    display: none;
+  }
+}

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speed Dial — UI Preview</title>
+    <script>
+      // chrome.storage.local mock backed by localStorage (survives reload)
+      (function () {
+        const NS = 'sdmock:';
+        const f = (d) => JSON.parse(JSON.stringify(d));
+        window.chrome = {
+          storage: {
+            local: {
+              async get(key) {
+                const keys = typeof key === 'string' ? [key] : Array.isArray(key) ? key : null;
+                const out = {};
+                for (let i = 0; i < localStorage.length; i++) {
+                  const k = localStorage.key(i);
+                  if (!k.startsWith(NS)) continue;
+                  const name = k.slice(NS.length);
+                  if (keys && !keys.includes(name)) continue;
+                  out[name] = f(JSON.parse(localStorage.getItem(k)));
+                }
+                return out;
+              },
+              async set(obj) {
+                Object.entries(obj).forEach(([k, v]) => localStorage.setItem(NS + k, JSON.stringify(f(v))));
+              },
+              async remove(key) {
+                (Array.isArray(key) ? key : [key]).forEach((k) => localStorage.removeItem(NS + k));
+              },
+              async clear() {
+                for (let i = localStorage.length - 1; i >= 0; i--) {
+                  const k = localStorage.key(i);
+                  if (k.startsWith(NS)) localStorage.removeItem(k);
+                }
+              },
+            },
+          },
+          windows: { create: async () => ({}) },
+          tabs: { create: async ({ url, active }) => { console.log('[mock] tabs.create', url, { active }); return {}; } },
+          runtime: {
+            getURL: (path) => {
+              const m = /pageUrl=([^&]+)/.exec(path);
+              return m
+                ? 'https://www.google.com/s2/favicons?domain=' + decodeURIComponent(m[1]) + '&sz=128'
+                : path;
+            },
+          },
+          bookmarks: { getTree: async () => [] },
+        };
+
+        // Seed demo sites once (persisted in the mock itself)
+        if (!localStorage.getItem(NS + 'speed-dial-sites')) {
+          const fav = (d) => 'https://www.google.com/s2/favicons?domain=' + d + '&sz=64';
+          const sites = [
+            ['GitHub', 'https://github.com', 'github.com'],
+            ['YouTube', 'https://youtube.com', 'youtube.com'],
+            ['Gmail', 'https://mail.google.com', 'mail.google.com'],
+            ['Google Docs', 'https://docs.google.com', 'docs.google.com'],
+            ['Wikipedia', 'https://wikipedia.org', 'wikipedia.org'],
+            ['Reddit', 'https://reddit.com', 'reddit.com'],
+            ['Hacker News', 'https://news.ycombinator.com', 'news.ycombinator.com'],
+            ['Stack Overflow', 'https://stackoverflow.com', 'stackoverflow.com'],
+            ['Figma', 'https://figma.com', 'figma.com'],
+            ['Notion', 'https://notion.so', 'notion.so'],
+            ['Spotify', 'https://open.spotify.com', 'open.spotify.com'],
+            ['MDN Web Docs', 'https://developer.mozilla.org', 'developer.mozilla.org'],
+          ].map(([title, url, dom], i) => ({
+            id: 'demo-' + i,
+            title,
+            url,
+            favicon: fav(dom),
+            position: i,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          }));
+          localStorage.setItem(NS + 'speed-dial-sites', JSON.stringify(sites));
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/preview.tsx"></script>
+  </body>
+</html>

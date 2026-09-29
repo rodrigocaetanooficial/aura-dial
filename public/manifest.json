@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Aura Dial",
+  "version": "1.0.0",
+  "description": "A modern, customizable speed dial replacement for your browser's new tab page.",
+  "permissions": ["storage", "favicon"],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "options_page": "options.html",
+  "icons": {
+    "16": "icons/aura-dial-16.png",
+    "48": "icons/aura-dial-48.png",
+    "128": "icons/aura-dial-128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/aura-dial-16.png",
+      "48": "icons/aura-dial-48.png",
+      "128": "icons/aura-dial-128.png"
+    }
+  }
+}

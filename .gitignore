@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.backup/
+
+# build artifacts kept around locally
+*.zip
+*.log
+
+.DS_Store
+Thumbs.db

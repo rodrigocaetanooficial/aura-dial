@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speed Dial — Options Preview</title>
+    <script>
+      (function () {
+        const mem = new Map();
+        const f = (d) => JSON.parse(JSON.stringify(d));
+        window.chrome = {
+          storage: {
+            local: {
+              async get(key) {
+                if (typeof key === 'string') return mem.has(key) ? { [key]: f(mem.get(key)) } : {};
+                const out = {};
+                mem.forEach((v, k) => (out[k] = f(v)));
+                return out;
+              },
+              async set(obj) {
+                Object.entries(obj).forEach(([k, v]) => mem.set(k, f(v)));
+              },
+              async remove(key) {
+                (Array.isArray(key) ? key : [key]).forEach((k) => mem.delete(k));
+              },
+              async clear() {
+                mem.clear();
+              },
+            },
+          },
+          windows: { create: async () => ({}) },
+          tabs: { create: async () => ({}) },
+          runtime: { getURL: (path) => path },
+          bookmarks: { getTree: async () => [] },
+        };
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/preview-options.tsx"></script>
+  </body>
+</html>
