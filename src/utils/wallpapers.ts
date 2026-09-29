@@ -13,6 +13,12 @@ export const WALLPAPERS: WallpaperPreset[] = [
   { file: 'wallpapers/highlands.webp', label: 'Highlands' },
   { file: 'wallpapers/waterfall.webp', label: 'Waterfall' },
   { file: 'wallpapers/coast.webp', label: 'Coast' },
+  { file: 'wallpapers/nebula.jpg', label: 'Nebula' },
+  { file: 'wallpapers/golden-clouds.jpg', label: 'Golden Clouds' },
+  { file: 'wallpapers/pastel-waves.jpg', label: 'Pastel Waves' },
+  { file: 'wallpapers/neon-skyline.jpg', label: 'Neon Skyline' },
+  { file: 'wallpapers/mountain-lake.jpg', label: 'Mountain Lake' },
+  { file: 'wallpapers/floating-islands.jpg', label: 'Floating Islands' },
 ];
 
 export const DEFAULT_WALLPAPER = WALLPAPERS[0].file;

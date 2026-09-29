@@ -45,7 +45,7 @@ Type (or paste) a URL and Aura Dial fetches what the page advertises:
 |---|---|
 | Theme | Light, dark, or follow the system |
 | Layout | Columns (auto, or 3–10), card size (small / medium / large / custom, with width and thumbnail-height sliders), horizontal and vertical gaps, grid alignment (centre, left, stretch) |
-| Background | Solid color, two-color gradient (presets + direction), or an image: 5 built-in wallpapers, your own upload, fit (cover / contain / stretch), position, brightness, blur, and light or dark overlays |
+| Background | Solid color, two-color gradient (presets + direction), or an image: 11 built-in wallpapers, your own upload, fit (cover / contain / stretch), position, brightness, blur, and light or dark overlays |
 | Cards | Corner radius, shadow (none / subtle / medium / large), frosted-glass effect, transparency |
 | Card info | Show or hide site names, domains, and tooltips |
 | Behavior | Default open behavior, confirm before deleting, animations on/off |
@@ -185,8 +185,8 @@ dependencies beyond React.
 - **Incognito windows** require you to allow the extension in incognito mode
   (`edge://extensions` → *Details* → *Allow in InPrivate/Incognito*).
 - **Chromium only.** Built for Manifest V3 browsers; Firefox and Safari are not supported.
-- **Sample wallpapers** ship with the extension for the demo; drop your own in
-  `public/wallpapers/` and add them to `src/utils/wallpapers.ts` to change the set.
+- **Sample wallpapers** ship with the extension (artwork created for Aura Dial); drop your own
+  images in `public/wallpapers/` and add them to `src/utils/wallpapers.ts` to change the set.
 
 ## Contributing
 
