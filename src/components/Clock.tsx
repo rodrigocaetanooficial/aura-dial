@@ -11,8 +11,15 @@ export function Clock({ showClock, showDate, clock24h }: Props) {
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(timer);
+    const tick = () => setNow(new Date());
+    const timer = setInterval(tick, 1000);
+    // Background tabs throttle intervals to ~1/min anyway; resync on return
+    // so the clock is never stale after a hidden stretch.
+    document.addEventListener('visibilitychange', tick);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', tick);
+    };
   }, []);
 
   if (!showClock && !showDate) return null;

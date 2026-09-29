@@ -169,7 +169,7 @@ async function isStockIcon(dataUrl: string, signal?: AbortSignal): Promise<boole
   return stockIconLength > 0 && dataUrl.length === stockIconLength;
 }
 
-export async function discoverFavicon(inputUrl: string, signal?: AbortSignal): Promise<FaviconResult> {
+export async function discoverFavicon(inputUrl: string, signal?: AbortSignal, html?: string | null): Promise<FaviconResult> {
   const normalized = normalizeUrl(inputUrl);
   if (!normalized) return { url: inputUrl };
   const domain = extractDomain(normalized);
@@ -177,8 +177,9 @@ export async function discoverFavicon(inputUrl: string, signal?: AbortSignal): P
   // The site's own icon first. The browser's cache answers instantly but hands
   // back the stock placeholder for a page it never loaded — which is how a
   // freshly added site ended up with a generic icon instead of its own.
-  const html = await fetchPageHtml(normalized, signal);
-  for (const target of [html ? bestFaviconUrl(html, normalized) : null, `https://${domain}/favicon.ico`]) {
+  // Pass `html` when the caller already fetched the page — one fetch per lookup.
+  const page = html === undefined ? await fetchPageHtml(normalized, signal) : html;
+  for (const target of [page ? bestFaviconUrl(page, normalized) : null, `https://${domain}/favicon.ico`]) {
     if (!target) continue;
     const dataUrl = await fetchImageAsDataUrl(target, signal);
     if (dataUrl) return { url: dataUrl, dataUrl };
@@ -224,14 +225,16 @@ function pageImageCandidates(doc: Document, base: string): { big: string[]; rest
  * Reads the page itself for what the icon API cannot give: the real page title
  * and the image candidates the user can pick as a thumbnail.
  */
-export async function fetchSitePreview(inputUrl: string, signal?: AbortSignal): Promise<SitePreview> {
+export async function fetchSitePreview(inputUrl: string, signal?: AbortSignal, html?: string | null): Promise<SitePreview> {
   const normalized = normalizeUrl(inputUrl);
-  const html = normalized ? await fetchPageHtml(normalized, signal) : null;
-  if (!normalized || !html) return { images: [] };
+  const doc = html === undefined
+    ? (normalized ? await fetchPageHtml(normalized, signal) : null)
+    : html;
+  if (!normalized || !doc) return { images: [] };
 
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  const meta = (selector: string) => doc.querySelector(selector)?.getAttribute('content')?.trim() || undefined;
-  const pageTitle = doc.querySelector('title')?.textContent?.trim();
+  const parsed = new DOMParser().parseFromString(doc, 'text/html');
+  const meta = (selector: string) => parsed.querySelector(selector)?.getAttribute('content')?.trim() || undefined;
+  const pageTitle = parsed.querySelector('title')?.textContent?.trim();
   const title = meta('meta[property="og:title"]')
     ?? meta('meta[name="twitter:title"]')
     ?? (pageTitle || undefined);
@@ -244,7 +247,7 @@ export async function fetchSitePreview(inputUrl: string, signal?: AbortSignal): 
     meta('meta[name="twitter:image:src"]'),
   ].filter((u): u is string => !!u);
 
-  const page = pageImageCandidates(doc, normalized);
+  const page = pageImageCandidates(parsed, normalized);
   const images = [...new Set([...declared, ...page.big, ...page.rest].map(u => resolveHref(normalized, u)))]
     .filter(u => /^https?:\/\//i.test(u))
     .slice(0, 6);

@@ -35,6 +35,7 @@ export function SearchBar({ value, onChange }: Props) {
         placeholder="Search your sites…"
         aria-label="Search sites"
         spellCheck={false}
+        autoFocus
       />
       {value ? (
         <button className="search-clear" onClick={() => onChange('')} aria-label="Clear search">

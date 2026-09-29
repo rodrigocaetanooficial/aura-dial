@@ -55,6 +55,7 @@ export function SpeedDialCard({
     const behavior = site.openBehavior ?? settings.openBehavior;
     // window.open cannot open a background tab from a new-tab page; the tabs API can.
     const tabs = typeof chrome !== 'undefined' ? chrome.tabs : undefined;
+    const wins = typeof chrome !== 'undefined' ? chrome.windows : undefined;
     try {
       switch (behavior) {
         case 'same-tab':
@@ -65,11 +66,12 @@ export function SpeedDialCard({
           else window.open(site.url, '_blank', 'noopener');
           break;
         case 'new-window':
-          if (chrome?.windows?.create) chrome.windows.create({ url: site.url });
+          if (wins?.create) wins.create({ url: site.url });
           else window.open(site.url, '_blank', 'width=1200,height=800');
           break;
         case 'incognito':
-          chrome.windows.create({ url: site.url, incognito: true })
+          if (!wins?.create) { window.open(site.url, '_blank'); break; }
+          wins.create({ url: site.url, incognito: true })
             .catch(() => tabs?.create({ url: site.url, active: false }));
           break;
         case 'new-tab':

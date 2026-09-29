@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Link2, Type, Image as ImageIcon, Globe, MousePointerClick, Upload, Trash2, Palette } from 'lucide-react';
 import type { SpeedDialItem, OpenBehavior } from '../types';
-import { discoverFavicon, extractDomain, normalizeUserUrl, persistableFavicon, fetchSitePreview, letterForDomain } from '../services/faviconService';
+import { discoverFavicon, extractDomain, normalizeUserUrl, persistableFavicon, fetchSitePreview, fetchPageHtml, letterForDomain } from '../services/faviconService';
 import { imageFileToDataUrl } from '../utils/imageFile';
 import { FieldLabel, SelectField } from './ui';
 
@@ -25,13 +25,14 @@ export function AddSiteModal({ initial, onSave, onClose }: Props) {
   const [picking, setPicking] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const fetchTimer = useRef<number | undefined>(undefined);
+  // Monotonic token: a slow lookup must never overwrite the state of a newer URL.
+  const fetchSeq = useRef(0);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKey);
-    dialogRef.current?.querySelector('input')?.focus();
     return () => {
       window.removeEventListener('keydown', handleKey);
       window.clearTimeout(fetchTimer.current);
@@ -49,12 +50,17 @@ export function AddSiteModal({ initial, onSave, onClose }: Props) {
       return;
     }
     setLoading(true);
+    const seq = ++fetchSeq.current;
     // Debounced: one lookup per typed URL, not one per keystroke.
     fetchTimer.current = window.setTimeout(async () => {
+      // One page fetch feeds both lookups — the previous version fetched the URL twice.
+      const html = await fetchPageHtml(normalized).catch(() => null);
+      if (seq !== fetchSeq.current) return; // a newer URL typed meanwhile
       const [icon, page] = await Promise.all([
-        discoverFavicon(normalized).catch(() => null),
-        fetchSitePreview(normalized).catch(() => ({ title: undefined, images: [] as string[] })),
+        discoverFavicon(normalized, undefined, html).catch(() => null),
+        fetchSitePreview(normalized, undefined, html).catch(() => ({ title: undefined, images: [] as string[] })),
       ]);
+      if (seq !== fetchSeq.current) return;
       if (icon) {
         setFavicon(persistableFavicon(icon));
         // Only a real image may stand in for the card's icon — the browser's
@@ -127,7 +133,7 @@ export function AddSiteModal({ initial, onSave, onClose }: Props) {
             <FieldLabel icon={Link2} htmlFor="site-url">URL</FieldLabel>
             <div className="input-affix">
               <Globe size={14} className="input-affix-icon" aria-hidden="true" />
-              <input id="site-url" type="text" value={url} onChange={e => handleUrlChange(e.target.value)} placeholder="https://github.com" autoComplete="off" spellCheck={false} />
+              <input id="site-url" type="text" value={url} onChange={e => handleUrlChange(e.target.value)} placeholder="https://github.com" autoComplete="off" spellCheck={false} autoFocus />
               {loading && <span className="input-spinner" aria-hidden="true" />}
             </div>
             {loading && <span className="loading-hint">Detecting icon…</span>}

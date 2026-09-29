@@ -400,7 +400,7 @@
   text-overflow: ellipsis;
 }
 
-/* Menu button */
+/* Menu button — always faintly visible so it can be found without hunting */
 .card-menu-btn {
   display: flex;
   align-items: center;
@@ -413,7 +413,7 @@
   background: transparent;
   color: var(--text-3);
   cursor: pointer;
-  opacity: 0;
+  opacity: 0.75;
   transition: opacity var(--t-fast), background var(--t-fast), color var(--t-fast);
 }
 
@@ -433,7 +433,7 @@
   top: 8px;
   right: 8px;
   z-index: 5;
-  opacity: 0;
+  opacity: 0.75;
   background: var(--glass-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
