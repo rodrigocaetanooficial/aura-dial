@@ -594,6 +594,12 @@ select option {
   flex-shrink: 0;
 }
 
+/* Single-action row without a label — keeps the button aligned like other controls */
+.reset-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
 /* ------------------------------------------------------------
    Settings: shell / sidebar / page head
    ------------------------------------------------------------ */

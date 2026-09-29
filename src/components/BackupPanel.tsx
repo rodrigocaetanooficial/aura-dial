@@ -131,11 +131,11 @@ ${sites.map(s => `    <DT><A HREF="${s.url}">${s.title}</A>`).join('\n')}
       </SettingCard>
 
       <SettingCard title="Reset" desc="Remove all sites and restore default settings.">
-        <SettingRow title="Reset extension" icon={RotateCcw}>
+        <div className="reset-row">
           <button className="btn btn-danger" onClick={() => setShowResetConfirm(true)}>
             <RotateCcw size={14} /> Reset extension
           </button>
-        </SettingRow>
+        </div>
       </SettingCard>
 
       {importData && importSummary && (
