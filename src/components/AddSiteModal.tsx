@@ -3,7 +3,7 @@ import { X, Link2, Type, Image as ImageIcon, Globe, MousePointerClick, Upload, T
 import type { SpeedDialItem, OpenBehavior } from '../types';
 import { discoverFavicon, extractDomain, normalizeUserUrl, persistableFavicon, fetchSitePreview, letterForDomain } from '../services/faviconService';
 import { imageFileToDataUrl } from '../utils/imageFile';
-import { FieldLabel } from './ui';
+import { FieldLabel, SelectField } from './ui';
 
 interface Props {
   initial?: SpeedDialItem;
@@ -202,16 +202,14 @@ export function AddSiteModal({ initial, onSave, onClose }: Props) {
 
           <div className="form-group">
             <FieldLabel icon={MousePointerClick} htmlFor="site-behavior">Open behavior</FieldLabel>
-            <div className="select-wrap">
-              <select id="site-behavior" value={openBehavior} onChange={e => setOpenBehavior(e.target.value as OpenBehavior | '')}>
-                <option value="">Use default</option>
-                <option value="same-tab">Same tab</option>
-                <option value="new-tab">New tab</option>
-                <option value="background-tab">New background tab</option>
-                <option value="new-window">New window</option>
-                <option value="incognito">Incognito window</option>
-              </select>
-            </div>
+            <SelectField id="site-behavior" ariaLabel="Open behavior" value={openBehavior} onChange={v => setOpenBehavior(v as OpenBehavior | '')}>
+              <option value="">Use default</option>
+              <option value="same-tab">Same tab</option>
+              <option value="new-tab">New tab</option>
+              <option value="background-tab">New background tab</option>
+              <option value="new-window">New window</option>
+              <option value="incognito">Incognito window</option>
+            </SelectField>
           </div>
 
           <div className="form-group">

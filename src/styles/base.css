@@ -625,8 +625,11 @@ select option {
   letter-spacing: 0.005em;
 }
 
-.settings-topbar-icon {
-  color: var(--accent);
+.settings-topbar-logo {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
 }
 
 .settings-body {
@@ -642,27 +645,28 @@ select option {
   max-width: 780px;
 }
 
+/* Narrow icon rail: one icon with its label underneath. */
 .settings-nav {
-  width: 232px;
+  width: 96px;
   flex-shrink: 0;
-  padding: var(--sp-5) var(--sp-3);
+  padding: var(--sp-4) 8px;
   border-right: 1px solid var(--border);
   background: var(--surface);
   overflow-y: auto;
 }
 
 .settings-nav-group {
-  margin-bottom: var(--sp-5);
+  margin-bottom: var(--sp-4);
 }
 
 .settings-nav-heading {
   display: block;
-  padding: 0 var(--sp-3);
   margin-bottom: var(--sp-2);
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
+  text-align: center;
   color: var(--text-3);
 }
 
@@ -672,17 +676,17 @@ select option {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   width: 100%;
-  padding: 11px var(--sp-2) 9px;
+  padding: 10px 2px 8px;
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-2);
   font-family: inherit;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 520;
-  line-height: 1.2;
+  line-height: 1.25;
   cursor: pointer;
   text-align: center;
   transition: background var(--t-fast), color var(--t-fast);
@@ -769,16 +773,132 @@ select option {
   color: var(--text-2);
 }
 
-.settings-live-note {
+.settings-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: 56px;
+  padding: var(--sp-2) var(--sp-4);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.settings-footer-note {
   display: flex;
   align-items: center;
   gap: 6px;
-  max-width: 720px;
-  padding: var(--sp-2) var(--sp-3);
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--text-3);
+  min-width: 0;
+}
+
+.settings-save-area {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-shrink: 0;
+}
+
+.settings-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--success);
+  animation: overlay-in var(--t-fast);
+}
+
+/* About page */
+.about-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+
+.about-logo {
+  display: block;
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+}
+
+.about-hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.about-name {
+  font-size: 1rem;
+  font-weight: 680;
+}
+
+.about-version {
+  font-size: 0.75rem;
+  color: var(--text-3);
+}
+
+.about-text {
+  max-width: 560px;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.about-dev {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.about-avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--accent-soft);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.about-avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.about-dev-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.about-dev-name {
+  font-size: 0.9375rem;
+  font-weight: 650;
+}
+
+.about-dev-meta {
   font-size: 0.75rem;
   color: var(--text-2);
+}
+
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
 }
 
 .settings-note {

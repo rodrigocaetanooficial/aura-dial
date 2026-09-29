@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   Settings2, LayoutGrid, Palette, Search, Clock, Gauge, Database,
   Sun, Moon, Monitor, X, ExternalLink, MousePointerClick, Sparkles,
   Type, Link2, AlignCenter, AlignLeft, Maximize2, Image as ImageIcon,
-  Star, Info,
+  Info, Check, CheckCircle2, UserRound, Code2,
 } from 'lucide-react';
 import type {
   SpeedDialSettings, Theme, CardSize, Alignment,
@@ -18,7 +18,7 @@ import {
 } from './ui';
 import { BackupPanel } from './BackupPanel';
 
-export type SettingsPage = 'general' | 'layout' | 'appearance' | 'search' | 'clock' | 'behavior' | 'data';
+export type SettingsPage = 'general' | 'layout' | 'appearance' | 'search' | 'clock' | 'behavior' | 'data' | 'about';
 
 interface NavItem {
   id: SettingsPage;
@@ -35,6 +35,7 @@ const NAV: NavItem[] = [
   { id: 'clock', label: 'Clock', icon: Clock, group: 'NEW TAB' },
   { id: 'behavior', label: 'Behavior', icon: Gauge, group: 'NEW TAB' },
   { id: 'data', label: 'Backup & Restore', icon: Database, group: 'DATA' },
+  { id: 'about', label: 'About', icon: Info, group: 'ABOUT' },
 ];
 
 const PAGE_META: Record<SettingsPage, { title: string; desc: string }> = {
@@ -45,7 +46,12 @@ const PAGE_META: Record<SettingsPage, { title: string; desc: string }> = {
   clock: { title: 'Clock', desc: 'Time and date shown beside your sites.' },
   behavior: { title: 'Behavior', desc: 'Where links open and general safeguards.' },
   data: { title: 'Backup & Restore', desc: 'Export, import and reset your data.' },
+  about: { title: 'About', desc: 'Version, developer and source code.' },
 };
+
+const VERSION = (() => {
+  try { return chrome.runtime.getManifest().version; } catch { return '1.0.1'; }
+})();
 
 const GRADIENT_PRESETS: Array<[string, string]> = [
   ['#101322', '#232a45'],
@@ -73,6 +79,8 @@ export function SettingsView({
   settings, onLiveChange, initialPage = 'general', onClose, onToast, onDataRestored,
 }: Props) {
   const [page, setPage] = useState<SettingsPage>(initialPage);
+  const [saved, setSaved] = useState(false);
+  const savedTimer = useRef<number>();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -81,6 +89,14 @@ export function SettingsView({
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
+
+  // Autosave already ran on every change; this is the explicit "did it save?" click.
+  const handleSave = () => {
+    onLiveChange(settings);
+    setSaved(true);
+    window.clearTimeout(savedTimer.current);
+    savedTimer.current = window.setTimeout(() => setSaved(false), 3000);
+  };
 
   const update = (partial: Partial<SpeedDialSettings>) => onLiveChange({ ...settings, ...partial });
   const updateBg = (partial: Partial<BackgroundSettings>) =>
@@ -458,6 +474,52 @@ export function SettingsView({
 
       case 'data':
         return <BackupPanel onToast={onToast} onDataRestored={onDataRestored} />;
+
+      case 'about':
+        return (
+          <>
+            <SettingCard title="Aura Dial" desc="A modern, customizable speed dial for your new tab.">
+              <div className="about-hero">
+                <img className="about-logo" src="icons/aura-dial-128.png" alt="" />
+                <div className="about-hero-text">
+                  <span className="about-name">Aura Dial</span>
+                  <span className="about-version">Version {VERSION}</span>
+                </div>
+              </div>
+              <p className="about-text">
+                And that's it — no accounts, no telemetry, nothing leaves your browser.
+              </p>
+            </SettingCard>
+
+            <SettingCard title="Developer" desc="Aura Dial is designed and built by">
+              <div className="about-dev">
+                <span className="about-avatar">
+                  <UserRound size={22} aria-hidden="true" />
+                  <img
+                    src="https://github.com/rodrigocaetanooficial.png?size=96"
+                    alt=""
+                    onError={e => { e.currentTarget.style.display = 'none'; }}
+                  />
+                </span>
+                <div className="about-dev-text">
+                  <span className="about-dev-name">Rodrigo Caetano</span>
+                  <span className="about-dev-meta">@rodrigocaetanooficial · WordPress, Elementor &amp; AI · Maringá, Brazil</span>
+                </div>
+              </div>
+              <div className="about-links">
+                <a className="btn btn-secondary" href="https://github.com/rodrigocaetanooficial/aura-dial" target="_blank" rel="noreferrer">
+                  <Code2 size={14} /> Source code
+                </a>
+                <a className="btn btn-secondary" href="https://github.com/rodrigocaetanooficial" target="_blank" rel="noreferrer">
+                  <ExternalLink size={14} /> GitHub profile
+                </a>
+                <a className="btn btn-ghost" href="https://github.com/rodrigocaetanooficial/aura-dial/issues" target="_blank" rel="noreferrer">
+                  Report an issue
+                </a>
+              </div>
+            </SettingCard>
+          </>
+        );
     }
   };
 
@@ -465,7 +527,7 @@ export function SettingsView({
     <div className="settings-shell">
       <header className="settings-topbar">
         <div className="settings-topbar-title">
-          <Star size={16} className="settings-topbar-icon" aria-hidden="true" />
+          <img className="settings-topbar-logo" src="icons/aura-dial-48.png" alt="" />
           <span>Aura Dial Settings</span>
         </div>
         {onClose && (
@@ -485,12 +547,24 @@ export function SettingsView({
           </div>
 
           {renderPage()}
-
-          <div className="settings-live-note">
-            <Info size={12} aria-hidden="true" /> Changes are saved automatically and apply live.
-          </div>
         </div>
       </div>
+
+      <footer className="settings-footer">
+        <span className="settings-footer-note">
+          <Info size={12} aria-hidden="true" /> Changes are saved automatically.
+        </span>
+        <span className="settings-save-area">
+          {saved && (
+            <span className="settings-saved" role="status">
+              <CheckCircle2 size={14} aria-hidden="true" /> All changes saved
+            </span>
+          )}
+          <button className="btn btn-primary" onClick={handleSave}>
+            <Check size={15} /> Save
+          </button>
+        </span>
+      </footer>
     </div>
   );
 }

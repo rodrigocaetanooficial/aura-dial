@@ -254,17 +254,25 @@ export function NewTabPage() {
       )}
 
       {showSettings && settings && (
-        <div className="settings-overlay">
-          <SettingsView
-            settings={settings}
-            onLiveChange={updateSettings}
-            onClose={() => setShowSettings(false)}
-            onToast={showToast}
-            onDataRestored={async () => {
-              const items = await getSites();
-              setSites(items.sort((a, b) => a.position - b.position));
-            }}
-          />
+        <div className="settings-overlay" onClick={() => setShowSettings(false)}>
+          <div
+            className="settings-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Settings"
+            onClick={e => e.stopPropagation()}
+          >
+            <SettingsView
+              settings={settings}
+              onLiveChange={updateSettings}
+              onClose={() => setShowSettings(false)}
+              onToast={showToast}
+              onDataRestored={async () => {
+                const items = await getSites();
+                setSites(items.sort((a, b) => a.position - b.position));
+              }}
+            />
+          </div>
         </div>
       )}
 

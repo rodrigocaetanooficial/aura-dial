@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import { Download, Upload, FileJson, FileText, RotateCcw, Database } from 'lucide-react';
+// Arrows read relative to the app: out of the tray = export, into the tray = import.
+import { Download as ImportIcon, Upload as ExportIcon, FileJson, FileText, RotateCcw, Database } from 'lucide-react';
 import type { SpeedDialItem, SpeedDialSettings, BackupData } from '../types';
 import { getSettings, saveSettings, getSites, saveSites, resetAll } from '../services/storageService';
 import { exportBackup, validateBackup, mergeSites, replaceSites, summarizeBackup } from '../services/backupService';
@@ -104,14 +105,14 @@ ${sites.map(s => `    <DT><A HREF="${s.url}">${s.title}</A>`).join('\n')}
   return (
     <>
       <SettingCard title="Full backup" desc="Sites, images and all settings in a single JSON file.">
-        <SettingRow title="Export backup" desc="Download everything as a .json file." icon={Download}>
+        <SettingRow title="Export backup" desc="Download everything as a .json file." icon={ExportIcon}>
           <button className="btn btn-secondary" onClick={handleExport}>
-            <Download size={14} /> Export backup
+            <ExportIcon size={14} /> Export backup
           </button>
         </SettingRow>
-        <SettingRow title="Import backup" desc="Restore from a previously exported .json file." icon={Upload}>
+        <SettingRow title="Import backup" desc="Restore from a previously exported .json file." icon={ImportIcon}>
           <FileButton accept=".json,application/json" onFile={handleImportFile}>
-            <Upload size={14} /> Import backup
+            <ImportIcon size={14} /> Import backup
           </FileButton>
         </SettingRow>
       </SettingCard>
